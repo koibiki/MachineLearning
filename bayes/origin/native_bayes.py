@@ -62,7 +62,7 @@ class NativeBayes:
     def _transfer_x(self, x):
         pass
 
-    # 定义预测但一样本的函数
+    # 定义预测单一样本的函数
     # 参照get_raw_result 控制该函数是输出预测的类别还是输出相应的后验概率
     # get_raw_result=False 输出类别 , get_raw_result=True 输出概率
     def predict_one(self, x, get_raw_result=False):
@@ -76,7 +76,9 @@ class NativeBayes:
         x = self._transfer_x(x)
         m_arg, m_probability = 0, 0
         # 遍历各个类别 找到能让后验概率最大化的类别
+        print(len(self._con_counter))
         for i in range(len(self._cat_counter)):
+            print('predict:', i)
             p = self._func(x, i)
             if p > m_probability:
                 m_arg, m_probability = i, p

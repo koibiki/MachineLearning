@@ -1,11 +1,13 @@
 from bayes.origin.mulyinomial_native_bayes import MultinomialNB
+from bayes.origin.gaussian_native_bayes import GaussianNB
 from utils.data_utils import DataUtils
 
-x, y = DataUtils.get_data_set('data/balloon1.5.txt', split=',')
+x, y = DataUtils.get_data_set('data/mushroom.txt', split=',')
 print(x)
 print(y)
-nb = MultinomialNB()
+nb = GaussianNB()
 nb.fit(x, y)
+
+
 nb.evaluate(x, y)
-x, y = DataUtils.get_data_set('data/balloon1.5.txt', split=',')
-nb.evaluate(x, y)
+

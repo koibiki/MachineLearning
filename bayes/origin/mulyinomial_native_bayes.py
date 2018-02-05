@@ -19,20 +19,23 @@ class MultinomialNB(NativeBayes):
 
         # 利用转换字典更新训练集
         x = np.array([[feat_dicts[i][_l] for i, _l in enumerate(sample)] for sample in x])
-        print(x)
+        print('x:', x)
         y = np.array([label_dict[yy] for yy in y])
-        print(y)
+        print('y:', y)
 
         # 获得各个类别数据个数
         cat_counter = np.bincount(y)
-        print('cat_counter:', list(cat_counter))
+        print('cat_counter:', cat_counter)
         # 记录各个维度特征的取值个数
         n_possibilities = [len(feats) for feats in features]
         print('n_possibilities:', list(n_possibilities))
         # 获得各个类别数据的下标
         labels = [y == value for value in range(len(cat_counter))]
+        print('labels:', list(labels))
         # 利用下表获得记录按类别分开后的输入数据的数组
         labelled_x = [x[ci].T for ci in labels]
+
+        print('labelled_x:', list(labelled_x))
         # 更新模型的各个属性
         self._x, self._y = x, y
         self._labelled_x, self._label_zip = labelled_x, list(zip(labels, labelled_x))
@@ -40,10 +43,12 @@ class MultinomialNB(NativeBayes):
         self.label_dict = {i: _l for _l, i in label_dict.items()}
         # 调用权重函数 更新记录条件概率的数组
         self.feed_sample_weight(sample_weight)
+        print('con_counter:', self._con_counter)
 
     def feed_sample_weight(self, sample_weight=None):
         self._con_counter = []
         for dim, _p in enumerate(self._n_possibilities):
+            print('dim:' + str(dim) + '  _p:' + str(_p))
             if sample_weight is None:
                 self._con_counter.append([np.bincount(xx[dim], minlength=_p) for xx in self._labelled_x])
             else:
@@ -59,16 +64,15 @@ class MultinomialNB(NativeBayes):
         for dim, n_possibilities in enumerate(self._n_possibilities):
             data[dim] = [[(self._con_counter[dim][c][p] + lb) / (self._cat_counter[c] + lb * n_possibilities)
                           for p in range(n_possibilities)] for c in range(n_category)]
-        print(list(data))
+        print('data', list(data))
         self._data = [np.array(dim_info) for dim_info in data]
-        print(list(self._data))
 
         # 利用data生成決策函數
         def func(input_x, tar_category):
             rs = 1
             # 遍歷各個維度, 利用data 和條件獨立性假設計算聯合條件概率
             for d, xx in enumerate(input_x):
-                rs *= data[d][tar_category][xx]
+                rs *= self._data[d][tar_category][xx]
             # 利用先驗概率和聯合條件概率生成后驗概率
             return rs * p_category[tar_category]
 
